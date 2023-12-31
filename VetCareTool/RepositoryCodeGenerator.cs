@@ -48,7 +48,7 @@ namespace VetCareTool
 
     namespace VetICare.Infrastructure.Repositories
     {{
-        internal class {repositoryImplementationName} : AuditEntityRepository<{entityName}>,{repositoryInterfaceName}
+        internal class {repositoryImplementationName} : EntityRepository<{entityName}>,{repositoryInterfaceName}
         {{
             public {repositoryImplementationName}(CareDbContext context) : base(context){{}}
         }}
@@ -59,6 +59,11 @@ namespace VetCareTool
             string addRepositoryPropertyCode = $"\t\t\t public {repositoryInterfaceName} {pluralizedEntityName} {{get;private set;}} ";
 
             string assignNewRepositoryCode = $"\t\t\t {pluralizedEntityName} = new {repositoryImplementationName}(_dbContext); ";
+
+            string assignNewprivaterepositoryfields = $"\t\t\t private {repositoryImplementationName} _{pluralizedEntityName} ; ";
+            //        public IAppointmentRepository Appointments => _appointmentsRepository ?? new AppointmentRepository(_dbContext);
+            string assignNewrepositoryfunctions = $"\t\t\t public {repositoryInterfaceName} {pluralizedEntityName}=>  _{pluralizedEntityName} ?? new {repositoryImplementationName}(_dbContext); ";
+
 
             string repositoryInterfacePath = Path.Combine(projectRootPath, "VetICare.Domain", "Repositories", "Interfaces", "Entities", $"{repositoryInterfaceName}.cs");
             string repositoryImplementationPath = Path.Combine(projectRootPath, "VetICare.Infrastructure", "Repositories", $"{repositoryImplementationName}.cs");
@@ -74,13 +79,13 @@ namespace VetCareTool
 
 
             // Adding code in IUnitOfWork.cs
-            HelperFun.InsertCodeAfterLine(unitOWorkInterfacePath, @"^\s*public\s+interface\s+IUnitOfWork\s*:\s*IDisposable\s*$\n\s*\{", addInterfacePropertyCode);
+            HelperFun.InsertCodeAfterLine(unitOWorkInterfacePath, @"^\s*public\s+interface\s+IUnitOfWork\s*:\s*IAsyncDisposable\s*$\n\s*\{", addInterfacePropertyCode);
 
-            // Adding code in UnitOfWork.cs
-            HelperFun.InsertCodeAfterLine(unitOfWorkImplementationPath, @"^\s*private\s+readonly\s+SqueakDbContext\s+_dbContext;\s*$", addRepositoryPropertyCode);
+            // Adding code in UnitOfWork.cs  ==>  in (#rgion private repository fields)
+            HelperFun.InsertCodeAfterLine(unitOfWorkImplementationPath, @"^\s*#region\s+private\s+repository\s+fields\s*$", assignNewprivaterepositoryfields);
 
-            // Adding code in UnitOfWork.cs
-            HelperFun.InsertCodeAfterLine(unitOfWorkImplementationPath, @"^\s*_dbContext\s*=\s*dbContext;\s*$", assignNewRepositoryCode);
+            // Adding code in UnitOfWork.cs  ==>  in (#rgion repository functions)
+            HelperFun.InsertCodeAfterLine(unitOfWorkImplementationPath, @"^\s*#region\s+repository\s+functions\s*$", assignNewrepositoryfunctions);
 
             Console.WriteLine($"Repository code for {entityName} created successfully");
 

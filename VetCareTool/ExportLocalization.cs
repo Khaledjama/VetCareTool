@@ -22,7 +22,6 @@ namespace VetCareTool
         public void WebExecute()
         {
             string spreadsheetId = "1YzJrXe5rkd7pHjC0FHCSh6J_Tf--p2pUlVZrFvxAQnw";
-
             // Download the sheet as an Excel file.
             string url = $"https://docs.google.com/spreadsheets/d/{spreadsheetId}/export?format=xlsx&id={spreadsheetId}";
             using (var client = new System.Net.WebClient())
